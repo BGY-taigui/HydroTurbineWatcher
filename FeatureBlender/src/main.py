@@ -35,7 +35,7 @@ def json_feature_writer(filename: str, feature_data: dict):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-def json_feature_blender_2D(feature_data_1: dict, feature_data_2: dict, blending_ratio: float):
+def json_feature_blender_1D(feature_data_1: dict, feature_data_2: dict, blending_ratio: float):
 
     blended_feature_data = feature_data_1
 
@@ -118,8 +118,8 @@ def feature_printer(feature_data: dict):
 
 if __name__ == "__main__":
 
-    case_one_modelfile = "./FeatureBlender/TestCase/20241008_111458_1650_Traning Model.json"
-    case_two_modelfile = "./FeatureBlender/TestCase/20241115_111458_1650_Traning Model.json"
+    case_one_modelfile = "./FeatureBlender/src/20251104_GVO100_Traning Model.json"
+    case_two_modelfile = "./FeatureBlender/src/20251104_GVO60_Traning Model.json"
 
 
     blending_ratio = 0.5
@@ -129,8 +129,8 @@ if __name__ == "__main__":
     feature_printer(json_feature_reader(case_two_modelfile))
 
     json_feature_writer(
-        "./test.json",
-        json_feature_blender_2D(
+        "./FeatureBlender/GVO80(100-60)_blended_model.json",
+        json_feature_blender_1D(
             json_feature_reader(case_one_modelfile),
             json_feature_reader(case_two_modelfile),
             blending_ratio
