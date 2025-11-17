@@ -116,23 +116,52 @@ def feature_printer(feature_data: dict):
 
     print("Custom Info:", feature_data["Custom Info"])
 
+class Model_Case:
+    def __init__(
+            self,case_one_modelfile: str,
+            case_two_modelfile: str,
+            output_modelfile: str,
+            blending_ratio: float):
+        self.case_one_modelfile = case_one_modelfile
+        self.case_two_modelfile = case_two_modelfile
+        self.output_modelfile = output_modelfile
+        self.blending_ratio = blending_ratio
+
+    def get_case_one_modelfile(self):
+        return self.case_one_modelfile
+    
+    def get_case_two_modelfile(self):
+        return self.case_two_modelfile
+
+    def get_output_modelfile(self):
+        return self.output_modelfile
+    
+    def get_blending_ratio(self):
+        return self.blending_ratio
+
 if __name__ == "__main__":
 
-    case_one_modelfile = "./FeatureBlender/src/20251104_GVO100_Traning Model.json"
-    case_two_modelfile = "./FeatureBlender/src/20251104_GVO60_Traning Model.json"
 
 
-    blending_ratio = 0.5
+    model_cases = [
+        Model_Case(
+            "./FeatureBlender/src/20251104_GVO100_Traning Model.json",
+            "./FeatureBlender/src/20251104_GVO60_Traning Model.json",
+            0.5
+        ),
+    ]
 
 
-    feature_printer(json_feature_reader(case_one_modelfile))
-    feature_printer(json_feature_reader(case_two_modelfile))
+    for model_case in model_cases:
 
-    json_feature_writer(
-        "./FeatureBlender/GVO80(100-60)_blended_model.json",
-        json_feature_blender_1D(
-            json_feature_reader(case_one_modelfile),
-            json_feature_reader(case_two_modelfile),
-            blending_ratio
+        feature_printer(json_feature_reader(model_case.get_case_one_modelfile))
+        feature_printer(json_feature_reader(model_case.get_case_two_modelfile()))
+
+        json_feature_writer(
+            model_case.get_output_modelfile(),
+            json_feature_blender_1D(
+                json_feature_reader(model_case.get_case_one_modelfile()),
+                json_feature_reader(model_case.get_case_two_modelfile()),
+                model_case.get_blending_ratio()
+            )
         )
-    )
