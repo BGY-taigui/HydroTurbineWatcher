@@ -139,29 +139,19 @@ class Model_Case:
     def get_blending_ratio(self):
         return self.blending_ratio
 
-if __name__ == "__main__":
+def get_swirl_num(n11,q11):
+    d1 = 0.1961
+    d2 = 0.1578
 
+    Sw = np.pi **2 /480 * d2**2/d1**2 * n11 * (1/q11 - 1/(0.0067*n11))
 
+    return Sw
 
-    model_cases = [
-        Model_Case(
-            "./FeatureBlender/src/20251104_GVO100_Traning Model.json",
-            "./FeatureBlender/src/20251104_GVO60_Traning Model.json",
-            0.5
-        ),
-    ]
+def get_blending_ratio(n11_1, q11_1, n11_2, q11_2, n11_target, q11_target):
+    Sw1 = get_swirl_num(n11_1, q11_1)
+    Sw2 = get_swirl_num(n11_2, q11_2)
+    Sw_target = get_swirl_num(n11_target, q11_target)
 
+    blending_ratio = (Sw_target - Sw1)/(Sw2 - Sw1)
 
-    for model_case in model_cases:
-
-        feature_printer(json_feature_reader(model_case.get_case_one_modelfile))
-        feature_printer(json_feature_reader(model_case.get_case_two_modelfile()))
-
-        json_feature_writer(
-            model_case.get_output_modelfile(),
-            json_feature_blender_1D(
-                json_feature_reader(model_case.get_case_one_modelfile()),
-                json_feature_reader(model_case.get_case_two_modelfile()),
-                model_case.get_blending_ratio()
-            )
-        )
+    return blending_ratio
