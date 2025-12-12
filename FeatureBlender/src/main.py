@@ -155,3 +155,33 @@ def get_blending_ratio(n11_1, q11_1, n11_2, q11_2, n11_target, q11_target):
     blending_ratio = (Sw_target - Sw1)/(Sw2 - Sw1)
 
     return blending_ratio
+
+def blend_from_moddel_cases(model_cases):
+
+    for model_case in model_cases:
+
+        #ファイルがあるかどうか確認
+        if not os.path.exists(model_case.get_case_one_modelfile()):
+            print(f"File not found: {model_case.get_case_one_modelfile()}")
+            raise FileNotFoundError(f"The file not found: {model_case.get_case_one_modelfile()}")
+        else:
+            print(f"File found: {model_case.get_case_one_modelfile()}")
+
+        if not os.path.exists(model_case.get_case_two_modelfile()):
+            print(f"File not found: {model_case.get_case_two_modelfile()}")
+            raise FileNotFoundError(f"The file not found: {model_case.get_case_two_modelfile()}")
+        else:
+            print(f"File found: {model_case.get_case_two_modelfile()}")
+        
+
+        feature_printer(json_feature_reader(model_case.get_case_one_modelfile()))
+        feature_printer(json_feature_reader(model_case.get_case_two_modelfile()))
+
+        json_feature_writer(
+            model_case.get_output_modelfile(),
+            json_feature_blender_1D(
+                json_feature_reader(model_case.get_case_one_modelfile()),
+                json_feature_reader(model_case.get_case_two_modelfile()),
+                model_case.get_blending_ratio()
+            )
+        )
