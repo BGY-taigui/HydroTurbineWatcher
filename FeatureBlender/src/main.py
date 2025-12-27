@@ -50,16 +50,50 @@ def json_feature_blender_1D(feature_data_1: dict, feature_data_2: dict, blending
 
 
     # Blending eigen vectors
-    eigenvectors_1 = feature_data_1["Anomaly Detection"]["eigenvectors"]
-    eigenvectors_2 = feature_data_2["Anomaly Detection"]["eigenvectors"]
-    blended_eigenvectors = []
-    for ev1, ev2 in zip(eigenvectors_1, eigenvectors_2):
-        blended_eigenvector = (np.array(ev1) * blending_ratio + np.array(ev2) * (1 - blending_ratio)).tolist()
-        blended_eigenvectors.append(blended_eigenvector)
+    
+    eigenvectors_1 =  np.array(feature_data_1["Anomaly Detection"]["eigenvectors"]).T
+    eigenvectors_2 = np.array(feature_data_2["Anomaly Detection"]["eigenvectors"]).T
+
+    eigenvalues_1 = feature_data_1["Anomaly Detection"]["variance"]
+    eigenvalues_2 = feature_data_2["Anomaly Detection"]["variance"]
+    eighenvector_length = len(eigenvectors_1)
+
+    corresponding_indexes = []
+    corresponding_indexes_rem = [item for item in range(eighenvector_length)]
+
+    #TODO ここのアルゴリズム合ってるか要確認
+    for i in range(eighenvector_length):
+        diff = [abs(np.dot(eigenvectors_1[i],eigenvectors_2[j])) for j in corresponding_indexes_rem]
+        min_index = diff.index(min(diff))
+        corresponding_indexes.append(corresponding_indexes_rem[min_index])
+        corresponding_indexes_rem.remove(corresponding_indexes_rem[min_index])
+    
+    sorted_eigenvectors_1 = eigenvectors_1
+    sorted_eigenvalues_1 = eigenvalues_1
+    sorted_eigenvectors_2 = np.array([eigenvectors_2[i] for i in corresponding_indexes])
+    sorted_eigenvalues_2 = [eigenvalues_2[i] for i in corresponding_indexes]
+    
+    #TODO 転置の順番があっているか要確認
+    P_1 = np.dot(sorted_eigenvectors_1.T , sorted_eigenvectors_1)
+    P_2 = np.dot(sorted_eigenvectors_2.T , sorted_eigenvectors_2)
+
+    P = P_1 * blending_ratio + P_2 * (1 - blending_ratio)
+
+    P_eigenvalues,P_eigenvectors = np.linalg.eigh(P)
+
+    blended_eigenvectors = P_eigenvectors[::-1][:eighenvector_length].T.tolist()
+
+    #blended_eigenvectors = P_eigenvectors[:,eighenvector_length].T.tolist()
+    #blended_eigenvectors = []
+    #for ev1, ev2 in zip(eigenvectors_1, eigenvectors_2):
+        #blended_eigenvector = (np.array(ev1) * blending_ratio + np.array(ev2) * (1 - blending_ratio)).tolist()
+        #blended_eigenvectors.append(blended_eigenvector)
 
     blended_feature_data["Anomaly Detection"]["eigenvectors"] = blended_eigenvectors
 
-    blended_feature_data["Anomaly Detection"]["variance"] = (np.array(feature_data_1["Anomaly Detection"]["variance"]) * blending_ratio + np.array(feature_data_2["Anomaly Detection"]["variance"]) * (1 - blending_ratio)).tolist()
+    blended_feature_data["Anomaly Detection"]["variance"] = (np.array(sorted_eigenvalues_1) * blending_ratio + np.array(sorted_eigenvalues_2) * (1 - blending_ratio)).tolist()
+    
+    #(np.array(feature_data_1["Anomaly Detection"]["variance"]) * blending_ratio + np.array(feature_data_2["Anomaly Detection"]["variance"]) * (1 - blending_ratio)).tolist()
 
     blended_feature_data["Anomaly Detection"]["threshold for T2"] = (np.array(feature_data_1["Anomaly Detection"]["threshold for T2"]) * blending_ratio + np.array(feature_data_2["Anomaly Detection"]["threshold for T2"]) * (1 - blending_ratio)).tolist()
 
@@ -185,3 +219,15 @@ def blend_from_moddel_cases(model_cases):
                 model_case.get_blending_ratio()
             )
         )
+
+if __name__ == "__main__":
+
+
+    test_case = Model_Case(
+        case_one_modelfile="./FeatureBlender/src/20251104_GVO60_Traning Model.json",
+        case_two_modelfile="./FeatureBlender/src/20251104_GVO80_Traning Model.json",
+        output_modelfile="blended_model.json",
+        blending_ratio=0.5
+    )
+
+    blend_from_moddel_cases([test_case])
