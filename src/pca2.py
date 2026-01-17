@@ -62,5 +62,22 @@ class PCA:
 
         return Q
 
-    def show_Q_report(self):
-        pass
+    def show_T2_report(self,data,components_num):
+        data_std = (data-self.Xmean)/self.Xstd
+        score = np.dot(data_std , self.eigvecs[:,:components_num])
+
+        T2_vec =  (score**2) / self.eigvals[:components_num]
+
+        plt.plot(T2_vec)
+        plt.show()
+
+
+    def show_Q_report(self,data,components_num):
+        data_mean = data - self.Xmean
+        data_std = data_mean / self.Xstd
+
+        data_reconstructed = self.eigvecs[:,:components_num] @ (self.eigvecs[:,:components_num].T @ data_std.T)
+        residual = data_std - data_reconstructed
+
+        plt.plot(residual)
+        plt.show()
