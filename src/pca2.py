@@ -5,12 +5,11 @@ import matplotlib.pyplot as plt
 class PCA:
     def __init__(self, data):
 
-        X = np.array(data)
-        self.Xmean = np.mean(X, axis=0)
-        self.Xstd = X.std(axis=0,ddof=1)
+        self.X = np.array(data)
+        self.Xmean = np.mean(self.X, axis=0)
+        self.Xstd = self.X.std(axis=0,ddof=1)
 
-        Xc = (X - self.Xmean) / self.Xstd
-
+        Xc = (self.X - self.Xmean) / self.Xstd
         cov_matrix = np.cov(Xc, rowvar=False)
 
         eigvals, eigvecs = np.linalg.eigh(cov_matrix)
@@ -81,3 +80,32 @@ class PCA:
 
         plt.plot(residual)
         plt.show()
+
+    def get_T2_limit(self,components_num):
+
+        data_num = len(self.X)
+        index_99 = int((data_num * 0.99)//1 - 1)
+
+        T2_values = [
+            self.get_T2(item, components_num)
+            for item in self.X
+        ]
+
+        T2_values.sort()
+
+        return T2_values[index_99+1]
+
+
+    def get_Q_limit(self,components_num):
+
+        data_num = len(self.X)
+        index_99 = int((data_num * 0.99)//1 -1)
+
+        Q_values = [
+            self.get_Q(item, components_num)
+            for item in self.X
+        ]
+
+        Q_values.sort()
+
+        return Q_values[index_99+1]
