@@ -30,6 +30,8 @@ class PCA:
         plt.legend()
         plt.show()
 
+    def get_cum_ratio(self,index):
+        return sum(self.eigvals[: index]) / sum(self.eigvals)
 
     def get_eigenvalues(self):
         return self.eigvals
@@ -47,6 +49,12 @@ class PCA:
 
         T2 = np.sum( (score**2) / self.eigvals[:components_num])
 
+        return T2
+
+    def get_each_T2(self,data,eignvec_index):
+        data_std = (data-self.Xmean)/self.Xstd
+        score = np.dot(data_std , self.eigvecs[eignvec_index])
+        T2 = (score[:, eignvec_index]**2) / self.eigvals[eignvec_index]
         return T2
 
     def get_Q(self,data,components_num):
@@ -84,7 +92,7 @@ class PCA:
     def get_T2_limit(self,components_num):
 
         data_num = len(self.X)
-        index_99 = int((data_num * 0.99)//1 - 1)
+        index_99 = int((data_num * 0.95)//1 - 1)
 
         T2_values = [
             self.get_T2(item, components_num)
@@ -99,7 +107,7 @@ class PCA:
     def get_Q_limit(self,components_num):
 
         data_num = len(self.X)
-        index_99 = int((data_num * 0.99)//1 -1)
+        index_99 = int((data_num * 0.95)//1 -1)
 
         Q_values = [
             self.get_Q(item, components_num)
