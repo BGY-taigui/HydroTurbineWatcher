@@ -60,10 +60,11 @@ class KernelPCA:
         return T2
 
     def get_each_T2(self,data,eignvec_index):
-        #TODO 実装中
-        data_std = (data-self.Xmean)/self.Xstd
-        score = np.dot(data_std , self.eigvecs[eignvec_index])
-        T2 = (score[:, eignvec_index]**2) / self.eigvals[eignvec_index]
+        data_c = (data - self.Xmean) / self.Xstd
+        Z = self.kpca.transform(data_c.reshape(1, -1))[:,eignvec_index]
+        mu = self.eigvals[eignvec_index]
+
+        T2 = np.sum((Z**2) / mu)
         return T2
 
     def get_Q(self,data,components_num):
