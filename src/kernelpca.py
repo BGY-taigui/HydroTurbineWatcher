@@ -28,7 +28,6 @@ class KernelPCA:
         self.eigvecs = self.kpca.eigenvectors_
 
     def show_cum_ratio(self):
-        
         plt.plot(self.eigvals/sum(self.eigvals),label="eigenvalues")
         
         plt.plot([
@@ -49,25 +48,26 @@ class KernelPCA:
         return self.eigvecs
 
     def get_expand_variance_ratio(self):
+        #TODO 未実装 
         return self.eigvals / sum(self.eigvals)
 
     def get_T2(self,data,components_num):
+        data_c = (data - self.Xmean) / self.Xstd
+        Z = self.kpca.transform(data_c.reshape(1, -1))[:,:components_num]
+        mu = self.eigvals[:components_num]
 
-        data_std = (data-self.Xmean)/self.Xstd
-        score = np.dot(data_std , self.eigvecs[:,:components_num])
-
-        T2 = np.sum( (score**2) / self.eigvals[:components_num])
-
+        T2 = np.sum((Z**2) / mu)
         return T2
 
     def get_each_T2(self,data,eignvec_index):
+        #TODO 実装中
         data_std = (data-self.Xmean)/self.Xstd
         score = np.dot(data_std , self.eigvecs[eignvec_index])
         T2 = (score[:, eignvec_index]**2) / self.eigvals[eignvec_index]
         return T2
 
     def get_Q(self,data,components_num):
-
+        #TODO 未実装
         data_mean = data - self.Xmean
         data_std = data_mean / self.Xstd
 
@@ -79,6 +79,7 @@ class KernelPCA:
         return Q
 
     def show_T2_report(self,data,components_num):
+        #TODO 未実装 
         data_std = (data-self.Xmean)/self.Xstd
         score = np.dot(data_std , self.eigvecs[:,:components_num])
 
@@ -89,6 +90,7 @@ class KernelPCA:
 
 
     def show_Q_report(self,data,components_num):
+        #TODO 未実装
         data_mean = data - self.Xmean
         data_std = data_mean / self.Xstd
 
