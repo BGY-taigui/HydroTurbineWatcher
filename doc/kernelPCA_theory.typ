@@ -72,10 +72,10 @@ $  R_"cum" = (sum_(m=1)^r lambda_m) / (sum_(m=1)^N lambda_m)=  (sum_(mu_1)^r mu_
 == 特徴量空間でのT2値の計算方法
 まずスコアとは、あるベクトルを分散共分散行列の固有ベクトルに射影した値である。特徴量空間においても同様であるため、固有ベクトルが$Phi$ベクトルの線型結合であることに留意して以下のように表すことができる。
 $  
-  z_m = v_m^T Phi(x) = sum_(i=1)^N alpha_(m i) Phi(x_i) = sum_(j=1)^N alpha_(m j) k(x_j,x)
+  z_m = v_m^T Phi(x) = sum_(i=1)^N alpha_(m i) Phi(x_i)^T Phi(x) = sum_(j=1)^N alpha_(m j) k(x_j,x)
 $
 この式は、m番目の固有ベクトルに対するスコアである。ここで、T2値は、スコアの二乗和であるため、以下のように表すことができる。
-$  T^2 = sum_(m=1)^r z_m^2
+$  T^2 = sum_(m=1)^r z_m^2/lambda_m
 $
 なおr次元にまで次元縮約しているとしている。
 
