@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import load_digits
-from sklearn.decomposition import KernelPCA as SKKernelPCA
-
 
 class KernelPCA:
     def __init__(self, data, n_components,kernel="rbf", gamma=1):
@@ -18,23 +15,9 @@ class KernelPCA:
 
         self.N = len(self.Xc)
 
-        self.kpca = SKKernelPCA(
-            n_components=n_components,
-            kernel=kernel,
-            gamma=gamma,
-            fit_inverse_transform=True
-        )
-
-        Z = self.kpca.fit_transform(self.Xc)
-
-        self.eigvals = self.kpca.eigenvalues_
-        self.eigvecs = self.kpca.eigenvectors_
-
-
         self.K_matrix = np.array([[self.centered_kernel_function(xi, xj) for xj in self.Xc] for xi in self.Xc])
 
         self.eigen_values, self.eigen_vectors = np.linalg.eig(self.K_matrix)
-
 
 
     def centered_kernel_function(self, x, y):
@@ -50,59 +33,38 @@ class KernelPCA:
         return np.exp(-self.gamma * np.sum((np.array(x) - np.array(y)) ** 2))
 
     def alpha_vectors(self):
-        #TODO Phiにした時に固有ベクトルが正規化されるようにする。
-        return self.eigvecs
+        return np.array([alpha / np.sqrt(self.N * lambda_val) for alpha, lambda_val in zip(self.eigen_vectors.T, self.eigen_values)])
 
     def lambda_values(self):
-        #return self.eigvals / self.N
-        return self.eigvals
-        #TODO ラムダの値はあってた
+        return self.eigen_values / self.N
 
     def score(self,data,eigenvec_index):
         data_c = (data - self.Xmean) / self.Xstd
 
-        alpha_vec = self.alpha_vectors()[:, eigenvec_index]
+        alpha_vec = self.alpha_vectors()[eigenvec_index]
         kernel_vec = np.array([self.centered_kernel_function(data_c, xi) for xi in self.Xc   ])
 
         return np.dot(alpha_vec, kernel_vec)
 
     def show_cum_ratio(self):
-        plt.plot(self.eigvals/sum(self.eigvals),label="eigenvalues")
+        plt.plot(self.eigen_values/sum(self.eigen_values),label="eigenvalues")
         
         plt.plot([
-            sum(self.eigvals[: index]) / sum(self.eigvals)
-            for index in range(len(self.eigvals))
+            sum(self.eigen_values[: index]) / sum(self.eigen_values)
+            for index in range(len(self.eigen_values))
         ],label="cumulative ratio")
 
         plt.legend()
         plt.show()
 
     def get_cum_ratio(self,index):
-        return sum(self.eigvals[: index]) / sum(self.eigvals)
-
-    def get_eigenvalues(self):
-        return self.eigvals
-
-    def get_eigenvectors(self):
-        return self.eigvecs
+        return sum(self.eigen_values[: index]) / sum(self.eigen_values)
 
     def get_expand_variance_ratio(self):
         #TODO 未実装 
         return self.eigvals / sum(self.eigvals)
 
     def get_T2(self,data,components_num):
-        data_c = (data - self.Xmean) / self.Xstd
-        Z = self.kpca.transform(data_c.reshape(1, -1))[:,:components_num]
-        mu = self.eigvals[:components_num]
-        
-        print("Z",Z)
-        print("mu",mu)
-
-        T2 = np.sum((Z**2) / mu)
-        return T2
-
-
-    def get_T2_2(self,data,components_num):
         scores = [self.score(data,index)**2/self.lambda_values()[index] for index in range(components_num)]
 
         print("scores",[self.score(data,index) for index in range(components_num)])
