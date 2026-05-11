@@ -82,6 +82,22 @@ $
 $
   tilde(k)(x_i, x_j) = k(x_i, x_j) - 1/N sum_(l=1)^N k(x_i, x_l) - 1/N sum_(l=1)^N k(x_l, x_j) + 1/N^2 sum_(l=1)^N sum_(m=1)^N k(x_l, x_m)
 $
+
+== $alpha$ベクトルの正規化
+次に、$alpha$ベクトルをどのように正規化するかを考える。分散共分散行列の固有値は、のちにスコアの計算などに用いるが、これらは固有ベクトルが張る空間への射影をすることとなるため、そのノルムはあらかじめ1にしておく必要がある。つまり以下のようになる。
+$
+  ||v||^2 = 1
+$
+しかし、先の固有値問題を計算すると、$||alpha||^2 = 1$で計算されるため$v$のノルムが1になるように修正する必要がある。そこで、$v$のノルムを計算してみる。
+$
+  ||v_m||^2 = v_m dot v_m = (sum_(j=1)^N alpha_(m j) tilde(Phi)(x_j)) dot (sum_(k=1)^N alpha_(m k) tilde(Phi)(x_k)) = sum_(j=1)^N sum_(k=1)^N alpha_(m j) alpha_(m k) tilde(k)(x_j, x_k) = alpha_m^T tilde(K) alpha_m
+$
+ここで、先ほどの固有値問題の式$tilde(K) alpha = N lambda alpha$を代入する。
+$
+  ||v_m||^2 = alpha_m^T tilde(K) alpha_m = N lambda_m alpha_m^T alpha_m = N lambda_m ||alpha_m||^2
+$
+したがって、$||alpha|| = 1 / sqrt(N lambda_m)$となるように正規化すれば良い。
+
 == 特徴量空間での累積寄与率の計算
 カーネル行列の固有値を$mu_m$とすると、特徴量空間でのC行列の対応する固有値は$lambda_m = mu_m / N$である。そこから累積寄与率を計算すると、結局中心化カーネル行列の固有値を従来のPCAと同様の方法で計算すれば良いことがわかる。
 $  R_"cum" = (sum_(m=1)^r lambda_m) / (sum_(m=1)^N lambda_m)=  (sum_(mu_1)^r mu_m/N) / (sum_(m=1)^N mu_m/N)=(sum_(m=1)^r mu_m) / (sum_(m=1)^N mu_m) $
