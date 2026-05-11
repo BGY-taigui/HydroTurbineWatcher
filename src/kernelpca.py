@@ -67,16 +67,7 @@ class KernelPCA:
     def get_T2(self,data,components_num):
         scores = [self.score(data,index)**2/self.lambda_values()[index] for index in range(components_num)]
 
-        print("scores",[self.score(data,index) for index in range(components_num)])
-        print("lambda_values",[self.lambda_values()[index] for index in range(components_num)])
-
-
         return sum(scores)
-
-
-    def get_Q_2(self,data,components_num):
-
-        pass
 
     def get_each_T2(self,data,eignvec_index):
         data_c = (data - self.Xmean) / self.Xstd
@@ -87,21 +78,12 @@ class KernelPCA:
         return T2
 
     def get_Q(self,data,components_num):
-        #TODO 未実装
         data_c = (data - self.Xmean) / self.Xstd
-        print("data_c",data_c)
-        print("data_c",data_c.reshape(1, -1))
-        print(self.kpca._get_kernel(data_c.reshape(1, -1)))
-        print(self.kpca._get_kernel(self.Xc))
 
-        Q = 0
-
-        #data_reconstructed = self.eigvecs[:,:components_num] @ (self.eigvecs[:,:components_num].T @ data_std.T)
-        #residual = data_std - data_reconstructed
-
-        #Q = np.sum(residual**2)
-
-        return Q
+        kxx = self.centered_kernel_function(data_c, data_c)
+        zm = np.sum([self.score(data,index)**2 for index in range(components_num)])
+        
+        return kxx - zm
 
 
     def get_T2_limit(self,components_num):
